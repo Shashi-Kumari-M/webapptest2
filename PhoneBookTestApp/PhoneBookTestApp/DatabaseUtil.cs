@@ -1,20 +1,22 @@
 ﻿using System;
+using System.Configuration;
 using System.Data.SQLite;
 
 namespace PhoneBookTestApp
 {
     public class DatabaseUtil
     {
+        private static readonly string connectionString = ConfigurationManager.ConnectionStrings["DbContext"].ConnectionString;
         public static void initializeDatabase()
         {
-            var dbConnection = new SQLiteConnection("Data Source= MyDatabase.sqlite;Version=3;");
-            dbConnection.Open();
+            var dbConnection = GetConnection();
+
 
             try
             {
                 SQLiteCommand command =
                     new SQLiteCommand(
-                        "create table PHONEBOOK (NAME varchar(255), PHONENUMBER varchar(255), ADDRESS varchar(255))",
+                        " create table PHONEBOOK (NAME varchar(255), PHONENUMBER varchar(255), ADDRESS varchar(255))",
                         dbConnection);
                 command.ExecuteNonQuery();
 
@@ -31,9 +33,9 @@ namespace PhoneBookTestApp
                 command.ExecuteNonQuery();
 
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw;
+                throw ex;
             }
             finally
             {
@@ -41,24 +43,23 @@ namespace PhoneBookTestApp
             }
         }
 
-        public static SQLiteConnection GetConnection()
-        {
-            var dbConnection = new SQLiteConnection("Data Source= MyDatabase.sqlite;Version=3;");
-            dbConnection.Open();
+            public static SQLiteConnection GetConnection()
+            {
+                var dbConnection = new SQLiteConnection(connectionString);
+                dbConnection.Open();
 
-            return dbConnection;
-        }
-
+                return dbConnection;
+            }
         public static void CleanUp()
         {
-            var dbConnection = new SQLiteConnection("Data Source= MyDatabase.sqlite;Version=3;");
+            var dbConnection = new SQLiteConnection(connectionString);
             dbConnection.Open();
 
             try
             {
                 SQLiteCommand command =
                     new SQLiteCommand(
-                        "drop table PHONEBOOK",
+                        "drop table IF EXISTS  PHONEBOOK",
                         dbConnection);
                 command.ExecuteNonQuery();
             }
